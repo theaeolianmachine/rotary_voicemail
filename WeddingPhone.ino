@@ -143,9 +143,9 @@ void stopRecording()
     mode = Mode::Ready;
 }
 
-void playGreeting()
+bool playGreeting()
 {
-    playWav.play("TEST.WAV");
+    playWav.play("GREETING.WAV");
 
     // A brief delay to read the WAV info
     delay(25);
@@ -159,9 +159,11 @@ void playGreeting()
         {
             playWav.stop();
             mode = Mode::Ready;
-            return;
+            return false;
         }
     }
+
+    return true;
 }
 
 void playBeep()
@@ -203,8 +205,14 @@ void loop()
     }
     else if (mode == Mode::Prompting)
     {
-        delay(1000); // Wait for them to pick up the phone
-        playGreeting();
+        delay(2000); // Wait for them to pick up the phone
+        bool playedGreeting = playGreeting();
+        if (!playedGreeting)
+        {
+            Serial.println("Handset down, ending prompt early...");
+            return;
+        }
+
         playBeep();
 
         Serial.println("Starting recording");
